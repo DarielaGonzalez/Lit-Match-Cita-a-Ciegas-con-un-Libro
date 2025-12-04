@@ -1,0 +1,1611 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Lit-Match - Cita a Ciegas con Libros</title>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2691E;
+            --accent: #F4A460;
+            --light: #FFF8DC;
+            --dark: #5D4037;
+            --text: #3E2723;
+            --success: #2E7D32;
+            --warning: #FF9800;
+            --shadow: rgba(139, 69, 19, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--light) 0%, #f5e9d9 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(244, 164, 96, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(210, 105, 30, 0.08) 0%, transparent 20%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow);
+            margin-bottom: 40px;
+            border: 2px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before, header::after {
+            content: "❧";
+            position: absolute;
+            font-size: 24px;
+            color: var(--secondary);
+            opacity: 0.3;
+        }
+
+        header::before {
+            top: 20px;
+            right: 20px;
+        }
+
+        header::after {
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            font-style: italic;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .main-title {
+            font-size: 2.8rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sections-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px var(--shadow);
+            border: 1px solid rgba(210, 105, 30, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px var(--shadow);
+        }
+
+        .section-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .section-card h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(139, 69, 19, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 248, 220, 0.3);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+            background: white;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent), #E9967A);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #4CAF50);
+        }
+
+        .panel-section {
+            grid-column: span 2;
+        }
+
+        #panel {
+            min-height: 200px;
+            background: rgba(255, 248, 220, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px dashed var(--accent);
+            font-size: 1.1rem;
+            color: var(--secondary);
+        }
+
+        .user-info {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow);
+            border-left: 5px solid var(--primary);
+        }
+
+        .questionnaire-container {
+            display: none;
+        }
+
+        .questionnaire-step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .questionnaire-step.active {
+            display: block;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(244, 164, 96, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-title span {
+            background: var(--secondary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .option-card {
+            padding: 20px;
+            background: white;
+            border: 2px solid rgba(139, 69, 19, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .option-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background: rgba(139, 69, 19, 0.05);
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+        .option-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--success);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .option-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .option-text {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .questionnaire-nav {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .questionnaire-nav button {
+            flex: 1;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .book-recommendation {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow);
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .book-cover {
+            width: 200px;
+            height: 300px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .book-cover::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 20px;
+            width: 10px;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .book-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .book-author {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .match-score {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .book-description {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+
+        .book-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .tag {
+            padding: 6px 15px;
+            background: rgba(244, 164, 96, 0.2);
+            border-radius: 15px;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(139, 69, 19, 0.2);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .sections-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .panel-section {
+                grid-column: span 1;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Lit-Match</div>
+            <div class="main-title">Tu <span class="highlight">cita a ciegas</span> literaria</div>
+            <p class="tagline">
+                Descubre libros que laten al mismo ritmo que tu corazón. 
+                Un algoritmo sensible que conecta emociones, no solo géneros.
+            </p>
+        </header>
+
+        <div class="sections-container">
+            <section class="section-card">
+                <h2>Únete a la comunidad</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="reg-email">Correo electrónico</label>
+                        <input id="reg-email" class="form-input" placeholder="tu@email.com" type="email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-pass">Crea tu contraseña</label>
+                        <input id="reg-pass" class="form-input" placeholder="••••••••" type="password" />
+                    </div>
+                    <button type="submit" class="btn">Comienza tu aventura</button>
+                </form>
+            </section>
+
+            <section class="section-card">
+                <h2>Accede a tu biblioteca</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Correo electrónico</label>
+                        <input id="login-email" class="form-input" placeholder="tu@email.com" type="email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="login-pass">Contraseña</label>
+                        <input id="login-pass" class="form-input" placeholder="••••••••" type="password" />
+                    </div>
+                    <button type="submit" class="btn">Continuar el viaje</button>
+                </form>
+            </section>
+
+            <section class="section-card panel-section">
+                <h2>Tu espacio literario</h2>
+                <div id="panel">
+                    <p>✨ Inicia sesión para descubrir tu próxima lectura sorpresa ✨</p>
+                </div>
+
+                <div class="questionnaire-container" id="questionnaire">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>Paso <span id="current-step">1</span>/8</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step active" id="step-1">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>1</span> ¿Cómo te sientes hoy?
+                            </div>
+                            <p>Elige el estado de ánimo que mejor describa tu momento actual</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="reflective">
+                                    <span class="option-icon">🤔</span>
+                                    <div class="option-text">Reflexivo/a</div>
+                                </div>
+                                <div class="option-card" data-value="adventurous">
+                                    <span class="option-icon">🏔️</span>
+                                    <div class="option-text">Aventurero/a</div>
+                                </div>
+                                <div class="option-card" data-value="melancholic">
+                                    <span class="option-icon">🌧️</span>
+                                    <div class="option-text">Melancólico/a</div>
+                                </div>
+                                <div class="option-card" data-value="joyful">
+                                    <span class="option-icon">😊</span>
+                                    <div class="option-text">Alegre</div>
+                                </div>
+                                <div class="option-card" data-value="curious">
+                                    <span class="option-icon">🔍</span>
+                                    <div class="option-text">Curioso/a</div>
+                                </div>
+                                <div class="option-card" data-value="romantic">
+                                    <span class="option-icon">💕</span>
+                                    <div class="option-text">Romántico/a</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="nextStep()" disabled id="next-btn-1">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-2">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>2</span> ¿En qué ambiente te gustaría sumergirte?
+                            </div>
+                            <p>Selecciona el escenario que más te atraiga</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="urban">
+                                    <span class="option-icon">🏙️</span>
+                                    <div class="option-text">Urbano contemporáneo</div>
+                                </div>
+                                <div class="option-card" data-value="fantasy">
+                                    <span class="option-icon">🐉</span>
+                                    <div class="option-text">Mundo fantástico</div>
+                                </div>
+                                <div class="option-card" data-value="historical">
+                                    <span class="option-icon">🏰</span>
+                                    <div class="option-text">Época histórica</div>
+                                </div>
+                                <div class="option-card" data-value="rural">
+                                    <span class="option-icon">🌾</span>
+                                    <div class="option-text">Entorno rural</div>
+                                </div>
+                                <div class="option-card" data-value="futuristic">
+                                    <span class="option-icon">🚀</span>
+                                    <div class="option-text">Futuro distópico</div>
+                                </div>
+                                <div class="option-card" data-value="cosy">
+                                    <span class="option-icon">🏡</span>
+                                    <div class="option-text">Ambiente acogedor</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn" onclick="nextStep()" disabled id="next-btn-2">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-3">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>3</span> ¿Qué ritmo narrativo prefieres?
+                            </div>
+                            <p>Elige el tempo que mejor se adapte a tu lectura actual</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="slow">
+                                    <span class="option-icon">🐌</span>
+                                    <div class="option-text">Pausado y profundo</div>
+                                </div>
+                                <div class="option-card" data-value="medium">
+                                    <span class="option-icon">🚶‍♂️</span>
+                                    <div class="option-text">Ritmo constante</div>
+                                </div>
+                                <div class="option-card" data-value="fast">
+                                    <span class="option-icon">⚡</span>
+                                    <div class="option-text">Rápido y emocionante</div>
+                                </div>
+                                <div class="option-card" data-value="variable">
+                                    <span class="option-icon">🌊</span>
+                                    <div class="option-text">Variable, con altibajos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn" onclick="nextStep()" disabled id="next-btn-3">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-4">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>4</span> ¿Con qué tipo de personaje te identificas?
+                            </div>
+                            <p>Selecciona el arquetipo que más resuena contigo</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="hero">
+                                    <span class="option-icon">🦸‍♂️</span>
+                                    <div class="option-text">Héroe/Heroína</div>
+                                </div>
+                                <div class="option-card" data-value="thinker">
+                                    <span class="option-icon">🧠</span>
+                                    <div class="option-text">Pensador/a filosófico</div>
+                                </div>
+                                <div class="option-card" data-value="rebel">
+                                    <span class="option-icon">✊</span>
+                                    <div class="option-text">Rebelde inconformista</div>
+                                </div>
+                                <div class="option-card" data-value="dreamer">
+                                    <span class="option-icon">🌠</span>
+                                    <div class="option-text">Soñador/a idealista</div>
+                                </div>
+                                <div class="option-card" data-value="realist">
+                                    <span class="option-icon">📊</span>
+                                    <div class="option-text">Realista pragmático</div>
+                                </div>
+                                <div class="option-card" data-value="healer">
+                                    <span class="option-icon">❤️</span>
+                                    <div class="option-text">Sanador/a emocional</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn" onclick="nextStep()" disabled id="next-btn-4">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-5">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>5</span> ¿Qué extensión prefieres?
+                            </div>
+                            <p>Elige la longitud ideal para tu próxima lectura</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="short">
+                                    <span class="option-icon">📖</span>
+                                    <div class="option-text">Corto (100-200 páginas)</div>
+                                </div>
+                                <div class="option-card" data-value="medium">
+                                    <span class="option-icon">📚</span>
+                                    <div class="option-text">Mediano (200-400 páginas)</div>
+                                </div>
+                                <div class="option-card" data-value="long">
+                                    <span class="option-icon">🏰</span>
+                                    <div class="option-text">Largo (400+ páginas)</div>
+                                </div>
+                                <div class="option-card" data-value="anthology">
+                                    <span class="option-icon">📝</span>
+                                    <div class="option-text">Relatos cortos/antología</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn" onclick="nextStep()" disabled id="next-btn-5">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-6">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>6</span> ¿Qué época literaria te atrae?
+                            </div>
+                            <p>Selecciona el período que más te interese</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="classic">
+                                    <span class="option-icon">🏛️</span>
+                                    <div class="option-text">Clásicos universales</div>
+                                </div>
+                                <div class="option-card" data-value="modern">
+                                    <span class="option-icon">🎨</span>
+                                    <div class="option-text">Modernismo siglo XX</div>
+                                </div>
+                                <div class="option-card" data-value="contemporary">
+                                    <span class="option-icon">💻</span>
+                                    <div class="option-text">Contemporáneo siglo XXI</div>
+                                </div>
+                                <div class="option-card" data-value="any">
+                                    <span class="option-icon">🔄</span>
+                                    <div class="option-text">Cualquier época</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn" onclick="nextStep()" disabled id="next-btn-6">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-7">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>7</span> ¿Qué emociones buscas explorar?
+                            </div>
+                            <p>Selecciona hasta 3 emociones que quieras experimentar</p>
+                            <div class="options-grid" id="emotions-grid">
+                                <div class="option-card" data-value="hope">
+                                    <span class="option-icon">🌟</span>
+                                    <div class="option-text">Esperanza</div>
+                                </div>
+                                <div class="option-card" data-value="sadness">
+                                    <span class="option-icon">💧</span>
+                                    <div class="option-text">Tristeza catártica</div>
+                                </div>
+                                <div class="option-card" data-value="joy">
+                                    <span class="option-icon">🎉</span>
+                                    <div class="option-text">Alegría pura</div>
+                                </div>
+                                <div class="option-card" data-value="fear">
+                                    <span class="option-icon">😨</span>
+                                    <div class="option-text">Miedo/terror</div>
+                                </div>
+                                <div class="option-card" data-value="love">
+                                    <span class="option-icon">💘</span>
+                                    <div class="option-text">Amor/pasión</div>
+                                </div>
+                                <div class="option-card" data-value="anger">
+                                    <span class="option-icon">🔥</span>
+                                    <div class="option-text">Ira/rebeldía</div>
+                                </div>
+                                <div class="option-card" data-value="wonder">
+                                    <span class="option-icon">🤩</span>
+                                    <div class="option-text">Asombro</div>
+                                </div>
+                                <div class="option-card" data-value="peace">
+                                    <span class="option-icon">🕊️</span>
+                                    <div class="option-text">Paz interior</div>
+                                </div>
+                            </div>
+                            <div id="selected-count" style="margin-top: 15px; color: var(--secondary); font-size: 0.9rem;">
+                                Seleccionados: 0/3
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn" onclick="nextStep()" disabled id="next-btn-7">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="questionnaire-step" id="step-8">
+                        <div class="question">
+                            <div class="question-title">
+                                <span>8</span> ¿Sorpresa o comodidad?
+                            </div>
+                            <p>¿Qué tan fuera de tu zona de confort quieres ir?</p>
+                            <div class="options-grid">
+                                <div class="option-card" data-value="comfort">
+                                    <span class="option-icon">🧸</span>
+                                    <div class="option-text">En mi zona de confort</div>
+                                    <small style="display: block; margin-top: 5px; color: var(--secondary);">
+                                        Géneros familiares, autores conocidos
+                                    </small>
+                                </div>
+                                <div class="option-card" data-value="balanced">
+                                    <span class="option-icon">⚖️</span>
+                                    <div class="option-text">Equilibrado</div>
+                                    <small style="display: block; margin-top: 5px; color: var(--secondary);">
+                                        Algo familiar, algo nuevo
+                                    </small>
+                                </div>
+                                <div class="option-card" data-value="adventure">
+                                    <span class="option-icon">🧭</span>
+                                    <div class="option-text">¡Sorpréndeme!</div>
+                                    <small style="display: block; margin-top: 5px; color: var(--secondary);">
+                                        Completamente fuera de lo esperado
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="questionnaire-nav">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                ← Anterior
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="submitQuestionnaire()" disabled id="submit-btn">
+                                🎁 Descubrir mi libro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-recommendation" id="book-recommendation">
+                    <div class="book-cover" id="book-cover">
+                        Lit-Match
+                    </div>
+                    <h2 class="book-title" id="book-title"></h2>
+                    <p class="book-author" id="book-author"></p>
+                    <div class="match-score" id="match-score"></div>
+                    <div class="book-description" id="book-description"></div>
+                    <div class="book-tags" id="book-tags"></div>
+                    <button class="btn btn-success" onclick="confirmSelection()">
+                        ✅ Confirmar este libro para mi envío
+                    </button>
+                    <button class="btn btn-secondary" onclick="retakeQuestionnaire()" style="margin-top: 15px;">
+                        🔄 Realizar cuestionario nuevamente
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>© 2025 Lit-Match. Cita a Ciegas con Libros.</p>
+            <p>Una experiencia literaria única • Suscripción mensual • Recomendación emocional</p>
+        </footer>
+    </div>
+
+    <script>
+        // Base de datos de libros
+        const bookDatabase = [
+            {
+                id: 1,
+                title: "Las Olas del Silencio",
+                author: "Clara Montenegro",
+                mood: "melancholic",
+                setting: "rural",
+                pace: "slow",
+                character: "thinker",
+                length: "medium",
+                era: "modern",
+                emotions: ["sadness", "peace", "wonder"],
+                surprise: "comfort",
+                match: 94,
+                description: "Una historia íntima sobre un profesor que regresa a su pueblo natal tras décadas de ausencia. A través de encuentros con el pasado y reflexiones sobre el tiempo, explora la naturaleza del silencio y las palabras no dichas.",
+                tags: ["Literatura contemplativa", "Narrativa rural", "Reflexión existencial", "Prosa poética"]
+            },
+            {
+                id: 2,
+                title: "La Ciudad de los Susurros",
+                author: "Martín Reyes",
+                mood: "curious",
+                setting: "urban",
+                pace: "fast",
+                character: "rebel",
+                length: "long",
+                era: "contemporary",
+                emotions: ["anger", "hope", "wonder"],
+                surprise: "adventure",
+                match: 88,
+                description: "En una metrópolis futurista donde las emociones son moneda corriente, un grupo de disidentes lucha por preservar la autenticidad humana. Una novela cyberpunk con profundo trasfondo filosófico.",
+                tags: ["Cyberpunk", "Distopía", "Rebeldía", "Tecnología y humanidad"]
+            },
+            {
+                id: 3,
+                title: "El Jardín de las Brumas",
+                author: "Aiko Tanaka",
+                mood: "reflective",
+                setting: "rural",
+                pace: "slow",
+                character: "dreamer",
+                length: "medium",
+                era: "contemporary",
+                emotions: ["peace", "wonder", "love"],
+                surprise: "balanced",
+                match: 92,
+                description: "Una novela lírica sobre un jardinero japonés que redescubre la belleza en las cosas simples tras una pérdida personal. Una meditación sobre el tiempo, la naturaleza y la curación.",
+                tags: ["Realismo mágico", "Literatura japonesa", "Naturaleza", "Curación emocional"]
+            },
+            {
+                id: 4,
+                title: "Crónicas del Alba Eterna",
+                author: "Elena Vasquez",
+                mood: "adventurous",
+                setting: "fantasy",
+                pace: "fast",
+                character: "hero",
+                length: "long",
+                era: "any",
+                emotions: ["hope", "wonder", "joy"],
+                surprise: "adventure",
+                match: 96,
+                description: "En un mundo donde la magia se está extinguiendo, una joven cartógrafa descubre un continente perdido que podría salvar a su civilización. Épica fantástica con personajes complejos y mundo detallado.",
+                tags: ["Fantasy épico", "Worldbuilding", "Aventura", "Magia y mitología"]
+            },
+            {
+                id: 5,
+                title: "Los Nudos del Tiempo",
+                author: "Samuel Orwell",
+                mood: "reflective",
+                setting: "historical",
+                pace: "medium",
+                character: "thinker",
+                length: "long",
+                era: "classic",
+                emotions: ["sadness", "wonder", "peace"],
+                surprise: "comfort",
+                match: 90,
+                description: "Novela histórica que entrelaza las vidas de tres generaciones de una familia durante el siglo XX. Una exploración profunda de la memoria, la identidad y los lazos familiares.",
+                tags: ["Novela histórica", "Saga familiar", "Memoria", "Siglo XX"]
+            },
+            {
+                id: 6,
+                title: "Atardecer en Montparnasse",
+                author: "Isabelle Moreau",
+                mood: "romantic",
+                setting: "historical",
+                pace: "medium",
+                character: "dreamer",
+                length: "medium",
+                era: "modern",
+                emotions: ["love", "sadness", "hope"],
+                surprise: "balanced",
+                match: 87,
+                description: "Ambientada en el París de los años 20, sigue la historia de una pintora bohemia y su relación con un escritor enigmático. Un retrato del amor, el arte y la pérdida.",
+                tags: ["Romance histórico", "París años 20", "Arte y literatura", "Bohemia"]
+            },
+            {
+                id: 7,
+                title: "Los Latidos del Asfalto",
+                author: "Carlos Mendoza",
+                mood: "joyful",
+                setting: "urban",
+                pace: "fast",
+                character: "realist",
+                length: "short",
+                era: "contemporary",
+                emotions: ["joy", "hope", "wonder"],
+                surprise: "adventure",
+                match: 85,
+                description: "Colección de relatos interconectados sobre personajes diversos en una gran ciudad moderna. Una celebración de la vida urbana y las conexiones humanas fortuitas.",
+                tags: ["Relatos urbanos", "Contemporáneo", "Diversidad", "Vida moderna"]
+            },
+            {
+                id: 8,
+                title: "El Último Faro",
+                author: "Nadia Petrov",
+                mood: "melancholic",
+                setting: "cosy",
+                pace: "slow",
+                character: "healer",
+                length: "short",
+                era: "modern",
+                emotions: ["peace", "sadness", "hope"],
+                surprise: "comfort",
+                match: 93,
+                description: "En un pequeño pueblo costero, la nueva guardiana de un faro descubre diarios centenarios que revelan secretos sobre su propia familia. Historia íntima sobre soledad y conexión.",
+                tags: ["Literatura costera", "Novela íntima", "Secretos familiares", "Atmósfera"]
+            }
+        ];
+
+        // Estado global
+        let currentUser = null;
+        let questionnaireAnswers = {};
+        let selectedEmotions = [];
+        const totalSteps = 8;
+        let currentStep = 1;
+
+        // Elementos del DOM
+        const registerForm = document.getElementById('register-form');
+        const loginForm = document.getElementById('login-form');
+        const panel = document.getElementById('panel');
+        const questionnaire = document.getElementById('questionnaire');
+
+        // Inicializar base de datos
+        function initializeDatabase() {
+            if (!localStorage.getItem('litMatchUsers')) {
+                localStorage.setItem('litMatchUsers', JSON.stringify({}));
+            }
+        }
+
+        // Obtener usuarios
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('litMatchUsers')) || {};
+        }
+
+        // Guardar usuarios
+        function saveUsers(users) {
+            localStorage.setItem('litMatchUsers', JSON.stringify(users));
+        }
+
+        // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDatabase();
+            setupQuestionnaireOptions();
+        });
+
+        function setupQuestionnaireOptions() {
+            for (let i = 1; i <= 6; i++) {
+                const options = document.querySelectorAll(`#step-${i} .option-card`);
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        options.forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        document.getElementById(`next-btn-${i}`).disabled = false;
+                        questionnaireAnswers[`step${i}`] = this.getAttribute('data-value');
+                    });
+                });
+            }
+
+            const emotionOptions = document.querySelectorAll('#emotions-grid .option-card');
+            emotionOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const index = selectedEmotions.indexOf(value);
+
+                    if (index === -1) {
+                        if (selectedEmotions.length < 3) {
+                            selectedEmotions.push(value);
+                            this.classList.add('selected');
+                        }
+                    } else {
+                        selectedEmotions.splice(index, 1);
+                        this.classList.remove('selected');
+                    }
+
+                    document.getElementById('selected-count').textContent = 
+                        `Seleccionados: ${selectedEmotions.length}/3`;
+                    document.getElementById('next-btn-7').disabled = selectedEmotions.length === 0;
+                    questionnaireAnswers.step7 = selectedEmotions;
+                });
+            });
+
+            const step8Options = document.querySelectorAll('#step-8 .option-card');
+            step8Options.forEach(option => {
+                option.addEventListener('click', function() {
+                    step8Options.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('submit-btn').disabled = false;
+                    questionnaireAnswers.step8 = this.getAttribute('data-value');
+                });
+            });
+        }
+
+        // REGISTRO
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-pass').value;
+
+            if (email && password) {
+                const users = getUsers();
+                
+                if (users[email]) {
+                    showMessage('❌ Este email ya está registrado. Inicia sesión.');
+                    return;
+                }
+                
+                const newUser = {
+                    email: email,
+                    password: password,
+                    joined: new Date().toISOString(),
+                    questionnaireCompleted: false,
+                    books: [],
+                    subscriptionActive: true,
+                    loyaltyPoints: 150,
+                    lastLogin: new Date().toISOString()
+                };
+                
+                users[email] = newUser;
+                saveUsers(users);
+                currentUser = newUser;
+                
+                showMessage('🎉 ¡Cuenta creada! Bienvenid@ a Lit-Match.');
+                document.getElementById('panel').style.display = 'none';
+                questionnaire.style.display = 'block';
+                
+                registerForm.reset();
+                loginForm.reset();
+            }
+        });
+
+        // LOGIN
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-pass').value;
+
+            if (email && password) {
+                const users = getUsers();
+                
+                if (!users[email]) {
+                    showMessage('❌ Usuario no encontrado. Regístrate primero.');
+                    return;
+                }
+                
+                if (users[email].password !== password) {
+                    showMessage('❌ Contraseña incorrecta.');
+                    return;
+                }
+                
+                users[email].lastLogin = new Date().toISOString();
+                saveUsers(users);
+                currentUser = users[email];
+                
+                showMessage('📚 ¡Bienvenid@ de nuevo a tu biblioteca!');
+                showUserLibrary();
+                loginForm.reset();
+                registerForm.reset();
+            } else {
+                showMessage('Por favor, completa ambos campos.');
+            }
+        });
+
+        // Mostrar biblioteca
+        function showUserLibrary() {
+            if (!currentUser) return;
+            
+            const userBooks = currentUser.books || [];
+            const joinDate = new Date(currentUser.joined).toLocaleDateString('es-ES');
+            
+            let libraryHTML = `
+                <div class="user-info">
+                    <h3>📚 Mi Biblioteca Personal</h3>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <div style="
+                            width: 50px;
+                            height: 50px;
+                            background: linear-gradient(135deg, var(--primary), var(--secondary));
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 1.2rem;
+                        ">
+                            ${currentUser.email.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: var(--primary);">
+                                ${currentUser.email.split('@')[0]}
+                            </div>
+                            <div style="color: var(--secondary); font-size: 0.9rem;">
+                                Miembro desde: ${joinDate}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 10px;
+                        margin: 20px 0;
+                        text-align: center;
+                    ">
+                        <div style="
+                            padding: 15px;
+                            background: white;
+                            border-radius: 10px;
+                            box-shadow: 0 3px 10px var(--shadow);
+                        ">
+                            <div style="font-size: 1.5rem; color: var(--primary); font-weight: bold;">
+                                ${userBooks.length}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--secondary);">Libros</div>
+                        </div>
+                        <div style="
+                            padding: 15px;
+                            background: white;
+                            border-radius: 10px;
+                            box-shadow: 0 3px 10px var(--shadow);
+                        ">
+                            <div style="font-size: 1.5rem; color: var(--primary); font-weight: bold;">
+                                ${currentUser.loyaltyPoints || 150}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--secondary);">Puntos</div>
+                        </div>
+                        <div style="
+                            padding: 15px;
+                            background: white;
+                            border-radius: 10px;
+                            box-shadow: 0 3px 10px var(--shadow);
+                        ">
+                            <div style="font-size: 1.5rem; color: var(--primary); font-weight: bold;">
+                                ${currentUser.subscriptionActive ? '✅' : '❌'}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--secondary);">Suscripción</div>
+                        </div>
+                    </div>
+            `;
+            
+            if (userBooks.length > 0) {
+                const avgMatch = Math.round(userBooks.reduce((sum, book) => sum + book.matchScore, 0) / userBooks.length);
+                
+                libraryHTML += `
+                    <div style="margin: 15px 0; padding: 10px; background: rgba(244, 164, 96, 0.1); border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: var(--primary); font-weight: bold;">Mi perfil lector</div>
+                                <div style="color: var(--secondary); font-size: 0.9rem;">
+                                    Match promedio: <span style="color: var(--success); font-weight: bold;">${avgMatch}%</span>
+                                </div>
+                            </div>
+                            <div style="color: var(--secondary); font-size: 0.9rem;">
+                                Próximo envío: ${userBooks.length >= 3 ? 'En camino' : 'Completa más cuestionarios'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: var(--primary); margin: 20px 0 10px 0;">📖 Mis Libros Recibidos</h4>
+                `;
+                
+                userBooks.forEach((book, index) => {
+                    const date = new Date(book.date).toLocaleDateString('es-ES');
+                    const bookInfo = bookDatabase.find(b => b.id === book.bookId) || book;
+                    
+                    libraryHTML += `
+                        <div style="
+                            margin-bottom: 15px;
+                            padding: 15px;
+                            background: ${index % 2 === 0 ? 'white' : 'rgba(244, 164, 96, 0.1)'};
+                            border-radius: 10px;
+                            border-left: 4px solid var(--primary);
+                        ">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <strong style="color: var(--primary); display: block; margin-bottom: 5px;">
+                                        ${bookInfo.title}
+                                    </strong>
+                                    <div style="color: var(--secondary); font-size: 0.9rem;">
+                                        ${bookInfo.author}
+                                    </div>
+                                </div>
+                                <div style="
+                                    background: var(--success);
+                                    color: white;
+                                    padding: 3px 10px;
+                                    border-radius: 10px;
+                                    font-size: 0.8rem;
+                                    font-weight: bold;
+                                ">
+                                    ${book.matchScore}% match
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85rem; color: var(--dark); line-height: 1.4;">
+                                ${bookInfo.description}
+                            </div>
+                            <div style="margin-top: 10px; display: flex; gap: 5px; flex-wrap: wrap;">
+                                ${bookInfo.tags.map(tag => 
+                                    `<span style="
+                                        padding: 3px 8px;
+                                        background: rgba(244, 164, 96, 0.2);
+                                        border-radius: 10px;
+                                        font-size: 0.7rem;
+                                        color: var(--secondary);
+                                    ">${tag}</span>`
+                                ).join('')}
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--secondary;">
+                                📅 ${date} • ${book.status || 'Recibido'}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                libraryHTML += `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--secondary);">
+                        <div style="font-size: 3rem; opacity: 0.3; margin-bottom: 10px;">📚</div>
+                        <p style="font-weight: bold; margin-bottom: 5px;">¡Tu biblioteca está vacía!</p>
+                        <p style="font-size: 0.9rem; margin-bottom: 20px;">
+                            Completa el cuestionario para recibir tu primer libro sorpresa
+                        </p>
+                        <button onclick="startQuestionnaire()" class="btn" style="max-width: 250px; margin: 0 auto;">
+                            🎯 Completar mi primer cuestionario
+                        </button>
+                    </div>
+                `;
+            }
+            
+            libraryHTML += `
+                    <div style="margin-top: 25px; display: flex; gap: 10px;">
+                        <button onclick="startQuestionnaire()" class="btn" style="flex: 1;">
+                            ${userBooks.length > 0 ? '🎯 Nuevo cuestionario' : '🎯 Primer cuestionario'}
+                        </button>
+                        <button onclick="logout()" class="btn btn-secondary" style="flex: 1;">
+                            🔒 Cerrar sesión
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            panel.innerHTML = libraryHTML;
+            panel.style.display = 'block';
+            questionnaire.style.display = 'none';
+            document.getElementById('book-recommendation').style.display = 'none';
+        }
+
+        // Funciones del cuestionario
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                updateProgress();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const percent = (currentStep / totalSteps) * 100;
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+            document.getElementById('current-step').textContent = currentStep;
+            document.getElementById('progress-percent').textContent = `${Math.round(percent)}%`;
+        }
+
+        function submitQuestionnaire() {
+            const recommendedBook = findRecommendedBook();
+            showBookRecommendation(recommendedBook);
+        }
+
+        function findRecommendedBook() {
+            let bestMatch = null;
+            let highestScore = 0;
+
+            bookDatabase.forEach(book => {
+                let score = 0;
+
+                if (questionnaireAnswers.step1 === book.mood) score += 15;
+                if (questionnaireAnswers.step2 === book.setting) score += 15;
+                if (questionnaireAnswers.step3 === book.pace) score += 10;
+                if (questionnaireAnswers.step4 === book.character) score += 10;
+                if (questionnaireAnswers.step5 === book.length) score += 10;
+                if (questionnaireAnswers.step6 === book.era || book.era === 'any') score += 10;
+
+                const emotionMatches = questionnaireAnswers.step7.filter(emotion => 
+                    book.emotions.includes(emotion)
+                ).length;
+                score += emotionMatches * 5;
+
+                if (questionnaireAnswers.step8 === book.surprise) score += 10;
+
+                if (questionnaireAnswers.step8 === 'adventure' && book.surprise === 'adventure') {
+                    score += 5;
+                }
+
+                if (score > highestScore) {
+                    highestScore = score;
+                    bestMatch = book;
+                }
+            });
+
+            if (bestMatch) {
+                bestMatch.match = Math.min(98, Math.max(85, highestScore));
+            }
+
+            return bestMatch || bookDatabase[0];
+        }
+
+        function showBookRecommendation(book) {
+            questionnaire.style.display = 'none';
+            document.getElementById('book-recommendation').style.display = 'block';
+
+            document.getElementById('book-title').textContent = book.title;
+            document.getElementById('book-author').textContent = `por ${book.author}`;
+            document.getElementById('match-score').textContent = `${book.match}% de coincidencia`;
+            document.getElementById('book-description').textContent = book.description;
+
+            const tagsContainer = document.getElementById('book-tags');
+            tagsContainer.innerHTML = '';
+            book.tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'tag';
+                tagElement.textContent = tag;
+                tagsContainer.appendChild(tagElement);
+            });
+
+            const cover = document.getElementById('book-cover');
+            cover.innerHTML = `<div style="padding: 20px; text-align: center;">${book.title.substring(0, 30)}</div>`;
+            cover.style.background = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+        }
+
+        function confirmSelection() {
+            if (currentUser) {
+                const bookTitle = document.getElementById('book-title').textContent;
+                const bookAuthor = document.getElementById('book-author').textContent.replace('por ', '');
+                const matchScore = parseInt(document.getElementById('match-score').textContent);
+                
+                const selectedBook = bookDatabase.find(book => 
+                    book.title === bookTitle && book.author === bookAuthor
+                );
+                
+                if (selectedBook) {
+                    const bookToSave = {
+                        bookId: selectedBook.id,
+                        title: selectedBook.title,
+                        author: selectedBook.author,
+                        matchScore: matchScore,
+                        description: selectedBook.description,
+                        tags: selectedBook.tags,
+                        date: new Date().toISOString(),
+                        status: 'pendiente'
+                    };
+                    
+                    const users = getUsers();
+                    if (!users[currentUser.email].books) users[currentUser.email].books = [];
+                    users[currentUser.email].books.unshift(bookToSave);
+                    users[currentUser.email].questionnaireCompleted = true;
+                    users[currentUser.email].loyaltyPoints = (users[currentUser.email].loyaltyPoints || 150) + 50;
+                    saveUsers(users);
+                    
+                    currentUser = users[currentUser.email];
+                    
+                    showMessage('🎉 ¡Libro agregado a tu biblioteca!');
+                    showUserLibrary();
+                    
+                    document.getElementById('book-recommendation').style.display = 'none';
+                }
+            }
+        }
+
+        function retakeQuestionnaire() {
+            questionnaireAnswers = {};
+            selectedEmotions = [];
+            currentStep = 1;
+
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelectorAll('.questionnaire-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById('step-1').classList.add('active');
+
+            for (let i = 1; i <= 8; i++) {
+                const btn = document.getElementById(`next-btn-${i}`);
+                if (btn) btn.disabled = true;
+            }
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('selected-count').textContent = 'Seleccionados: 0/3';
+
+            document.getElementById('book-recommendation').style.display = 'none';
+            questionnaire.style.display = 'block';
+            updateProgress();
+        }
+
+        function startQuestionnaire() {
+            if (currentUser) {
+                panel.style.display = 'none';
+                questionnaire.style.display = 'block';
+            } else {
+                showMessage('Por favor, inicia sesión primero.');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            panel.innerHTML = '<p>✨ Inicia sesión para descubrir tu próxima lectura sorpresa ✨</p>';
+            showMessage('🔒 ¡Sesión cerrada! Vuelve pronto.');
+        }
+
+        function showMessage(text) {
+            const message = document.createElement('div');
+            message.textContent = text;
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--primary);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                font-family: inherit;
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => message.remove(), 300);
+            }, 3000);
+        }
+
+        // Estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
